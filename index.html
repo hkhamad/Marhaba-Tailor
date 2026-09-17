@@ -239,10 +239,11 @@
   /* Off-screen receipt template used for image generation */
   #cardTemplateRoot{position:fixed;left:-9999px;top:0;}
   .receipt{
-    width:384px;background:#FFFFFF;
-    padding:20px 18px;font-family:'Work Sans',sans-serif;color:#241f18;
+    width:576px;background:#FFFFFF;
+    padding:24px 20px;font-family:'Work Sans',sans-serif;color:#000000;
+    -webkit-font-smoothing: antialiased;
   }
-  .receipt.size-80{width:576px;padding:26px 24px;}
+  .receipt.size-80{width:576px;padding:24px 20px;}
   .size-toggle{display:flex;gap:6px;margin-bottom:12px;}
   .size-toggle button{
     flex:1;background:var(--bg-2);border:1px solid #DDD2BC;border-radius:20px;
@@ -937,7 +938,7 @@ function buildReceiptHTML(c, widthMM, lengthMM){
     ['تعداد', (Number(c.qty)>1 ? c.qty+' سوٹ' : '')]
   ].filter(([k,v]) => v);
 
-  const PX_PER_MM = 6.62;
+  const PX_PER_MM = 7.2;
   const widthPx = Math.round((widthMM||80) * PX_PER_MM);
   const lengthPx = lengthMM ? Math.round(lengthMM * PX_PER_MM) : null;
   const sizeStyle = `width:${widthPx}px;${lengthPx ? `min-height:${lengthPx}px;` : ''}`;
@@ -1188,3 +1189,4 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+
