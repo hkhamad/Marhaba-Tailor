@@ -236,13 +236,13 @@
   .modal-box img{width:100%;border-radius:6px;display:block;margin-bottom:14px;}
   .modal-actions{display:flex;gap:8px;flex-wrap:wrap;}
 
-  /* Off-screen receipt template used for image generation */
+  /* Off-screen receipt template used for image generation & direct printing */
   #cardTemplateRoot{position:fixed;left:-9999px;top:0;}
   .receipt{
     width:384px;background:#FFFFFF;
-    padding:20px 18px;font-family:'Work Sans',sans-serif;color:#241f18;
+    padding:16px 14px;font-family:'Work Sans',sans-serif;color:#000000;
   }
-  .receipt.size-80{width:576px;padding:26px 24px;}
+  .receipt.size-80{width:576px;padding:18px 16px;}
   .size-toggle{display:flex;gap:6px;margin-bottom:12px;}
   .size-toggle button{
     flex:1;background:var(--bg-2);border:1px solid #DDD2BC;border-radius:20px;
@@ -265,31 +265,31 @@
   .stepper span{min-width:44px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--cream);}
   .size-custom .btn{flex:0 0 auto;}
   .receipt-header{
-    text-align:center;border-bottom:1px dashed #000000;padding-bottom:14px;margin-bottom:16px;
+    text-align:center;border-bottom:1px dashed #000000;padding-bottom:10px;margin-bottom:12px;
   }
   .receipt-header h2{
-    font-family:'Fraunces',serif;color:#000000;margin:0;font-size:22px;font-weight:700;
+    font-family:'Fraunces',serif;color:#000000;margin:0;font-size:20px;font-weight:700;
   }
   .receipt-header .owner{
-    font-family:'Work Sans',sans-serif;font-size:11.5px;color:#000000;
-    margin-top:3px;letter-spacing:0.2px;
+    font-family:'Work Sans',sans-serif;font-size:11px;color:#000000;
+    margin-top:2px;letter-spacing:0.2px;font-weight:600;
   }
-  .receipt-header .owner .divider{margin:0 6px;opacity:0.8;}
+  .receipt-header .owner .divider{margin:0 6px;}
   .receipt-cust{
-    display:flex;justify-content:space-between;padding-bottom:10px;margin-bottom:12px;
+    display:flex;justify-content:space-between;padding-bottom:8px;margin-bottom:10px;
     border-bottom:1px dashed #000000;font-size:14px;color:#000000;
   }
   .receipt-cust .name{font-weight:700;font-size:15px;color:#000000;}
-  .receipt-cust .phone{font-family:'IBM Plex Mono',monospace;color:#000000;}
-  .receipt-list{margin-bottom:14px;}
+  .receipt-cust .phone{font-family:'IBM Plex Mono',monospace;color:#000000;font-weight:700;}
+  .receipt-list{margin-bottom:10px;}
   .receipt-row{
     display:flex;justify-content:space-between;align-items:baseline;
-    padding:5px 0;border-bottom:1px dotted #999999;
+    padding:4px 0;border-bottom:1px dotted #999999;
   }
   .receipt-row:last-child{border-bottom:none;}
   .receipt-row .k{
-    font-family:'Noto Nastaliq Urdu',serif;font-size:15px;color:#000000;
-    direction:rtl;text-align:right;font-weight:600;flex:1;padding-right:8px;
+    font-family:'Noto Nastaliq Urdu',serif;font-size:16px;color:#000000;
+    direction:rtl;text-align:right;font-weight:700;flex:1;padding-right:8px;
   }
   .receipt-row .v{
     font-family:'IBM Plex Mono',monospace;font-size:15px;color:#000000;
@@ -298,11 +298,11 @@
   .receipt-row .v.check{font-size:17px;}
   .receipt-price{
     display:flex;justify-content:space-between;align-items:center;
-    border-top:1px dashed #000000;padding-top:12px;margin-top:4px;
+    border-top:1px dashed #000000;padding-top:10px;margin-top:4px;
   }
-  .receipt-price .label{font-family:'Noto Nastaliq Urdu',serif;font-size:14px;color:#000000;font-weight:600;}
-  .receipt-price .amt{font-family:'IBM Plex Mono',monospace;font-size:20px;color:#000000;font-weight:700;}
-  .receipt-footer{text-align:center;margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#000000;}
+  .receipt-price .label{font-family:'Noto Nastaliq Urdu',serif;font-size:15px;color:#000000;font-weight:700;}
+  .receipt-price .amt{font-family:'IBM Plex Mono',monospace;font-size:18px;color:#000000;font-weight:700;}
+  .receipt-footer{text-align:center;margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:#000000;font-weight:600;}
   .panel-actions{display:flex;gap:8px;margin-top:6px;}
 
   .empty{
@@ -379,6 +379,14 @@
   .count-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
   .count-row .c{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);}
 
+  /* Print Styles: Ensures direct print comes out perfectly black, clean, and exact width */
+  @media print {
+    body * { visibility: hidden; }
+    #cardTemplateRoot, #cardTemplateRoot * { visibility: visible; }
+    #cardTemplateRoot { position: absolute; left: 0; top: 0; width: 100%; }
+    .receipt { width: 100% !important; margin: 0; padding: 5px; color: #000 !important; }
+  }
+
   @media (max-width:400px){
     .naap-grid{grid-template-columns:1fr 1fr;}
     .grid2{grid-template-columns:1fr;}
@@ -432,7 +440,6 @@ const STORAGE_KEY = 'tailor_customers';
 const BASE_PRICE = 800;
 let lastAutoPrice = null;
 
-// ---- Backup folder memory (like remembering the chosen storage location) ----
 let backupDirHandle = null;
 const supportsFolderPicker = typeof window.showDirectoryPicker === 'function';
 
@@ -483,7 +490,7 @@ function updateBackupFolderNote(){
 
 async function chooseBackupFolder(){
   if(!supportsFolderPicker){
-    showToast("Your browser doesn't support this feature, backup will be saved to the Downloads folder");
+    showToast("Your browser doesn't support this feature");
     return;
   }
   try{
@@ -491,10 +498,8 @@ async function chooseBackupFolder(){
     backupDirHandle = handle;
     await idbSetHandle('backupDir', handle);
     updateBackupFolderNote();
-    showToast('This location has been remembered — every backup will save here now');
-  }catch(e){
-    // user cancelled or permission was denied
-  }
+    showToast('Location remembered');
+  }catch(e){}
 }
 
 async function restoreBackupFolder(){
@@ -567,35 +572,24 @@ async function saveData(){
   try{
     localStorage.setItem(STORAGE_KEY, JSON.stringify(customers));
   }catch(e){
-    showToast("Couldn't save, please try again");
+    showToast("Couldn't save");
   }
 }
 
 function uid(){ return 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2,7); }
-
 function pad2(n){ return String(n).padStart(2,'0'); }
 
 async function exportData(){
-  if(!customers.length){
-    showToast("There's no data yet to back up");
-    return;
-  }
-  const payload = {
-    app: 'marhaba-tailor',
-    exportedAt: new Date().toISOString(),
-    customers: customers
-  };
+  if(!customers.length){ showToast("No data to back up"); return; }
+  const payload = { app: 'marhaba-tailor', exportedAt: new Date().toISOString(), customers: customers };
   const now = new Date();
   const fname = `marhaba-tailor-backup-${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}.json`;
   const text = JSON.stringify(payload, null, 2);
 
-  // If a location (folder) is already remembered, save directly there
   if(backupDirHandle){
     try{
       let perm = await backupDirHandle.queryPermission({mode:'readwrite'});
-      if(perm !== 'granted'){
-        perm = await backupDirHandle.requestPermission({mode:'readwrite'});
-      }
+      if(perm !== 'granted') perm = await backupDirHandle.requestPermission({mode:'readwrite'});
       if(perm === 'granted'){
         const fileHandle = await backupDirHandle.getFileHandle(fname, {create:true});
         const writable = await fileHandle.createWritable();
@@ -604,26 +598,18 @@ async function exportData(){
         showToast(`Backup saved to "${backupDirHandle.name}"`);
         return;
       }
-    }catch(e){
-      // agar folder access chala gaya ho (e.g. USB/SD card nikal di gayi), neeche fallback pe chale jayein
-    }
+    }catch(e){}
   }
-
-  // Fallback: normal browser download
   try{
     const blob = new Blob([text], {type:'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = fname;
-    document.body.appendChild(a);
-    a.click();
+    a.href = url; a.download = fname;
+    document.body.appendChild(a); a.click();
     document.body.removeChild(a);
     setTimeout(()=>URL.revokeObjectURL(url), 2000);
     showToast('Backup file saved');
-  }catch(e){
-    showToast("Backup couldn't be saved");
-  }
+  }catch(e){ showToast("Backup failed"); }
 }
 
 function importData(event){
@@ -634,33 +620,20 @@ function importData(event){
     try{
       const parsed = JSON.parse(e.target.result);
       const incoming = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.customers) ? parsed.customers : null);
-      if(!incoming){
-        showToast("This isn't a valid backup file");
-        event.target.value = '';
-        return;
-      }
-      const ok = confirm(`This backup file contains ${incoming.length} customer(s). This will REPLACE your current data. Continue?`);
-      if(!ok){
-        event.target.value = '';
-        return;
-      }
+      if(!incoming){ showToast("Invalid backup file"); event.target.value = ''; return; }
+      if(!confirm(`Replace current data with ${incoming.length} customer(s)?`)){ event.target.value = ''; return; }
       customers = incoming;
-      saveData();
-      render();
-      showToast('Backup restored');
-    }catch(err){
-      showToast("Couldn't read the file, please choose a valid backup file");
-    }finally{
-      event.target.value = '';
-    }
+      saveData(); render();
+      showToast('Restored successfully');
+    }catch(err){ showToast("Could not read file"); }
+    finally{ event.target.value = ''; }
   };
   reader.readAsText(file);
 }
 
 function showToast(msg){
   const t = document.createElement('div');
-  t.className='toast';
-  t.textContent = msg;
+  t.className='toast'; t.textContent = msg;
   document.body.appendChild(t);
   setTimeout(()=>t.remove(), 2400);
 }
@@ -679,14 +652,8 @@ function renderForm(edit){
   area.innerHTML = `
     <div class="panel">
       <h2>${edit ? 'Edit Customer' : 'New Customer'}</h2>
-      <div class="field">
-        <label>NAME</label>
-        <input type="text" id="f_name" placeholder="Customer's name" value="${escapeHtml(c.name)}">
-      </div>
-      <div class="field">
-        <label>CONTACT NUMBER</label>
-        <input type="tel" id="f_phone" placeholder="03xxxxxxxxx" value="${escapeHtml(c.phone)}">
-      </div>
+      <div class="field"><label>NAME</label><input type="text" id="f_name" placeholder="Customer's name" value="${escapeHtml(c.name)}"></div>
+      <div class="field"><label>CONTACT NUMBER</label><input type="tel" id="f_phone" placeholder="03xxxxxxxxx" value="${escapeHtml(c.phone)}"></div>
 
       <div class="naap-title">NAAP (INCHES)</div>
       <div class="grid2">
@@ -700,16 +667,14 @@ function renderForm(edit){
         <div class="field"><label>ORDER DATE</label><input type="date" id="f_orderDate" value="${c.orderDate||''}"></div>
       </div>
 
-      <div class="urdu-field">
-        <label>گلا</label>
+      <div class="urdu-field"><label>گلا</label>
         <div class="radio-row">
           <label class="radio-pill ${c.galaType==='bein'?'checked':''}"><input type="radio" name="f_galaType" value="bein" ${c.galaType==='bein'?'checked':''} onchange="refreshPills(this)"> بین</label>
           <label class="radio-pill ${c.galaType==='collar'?'checked':''}"><input type="radio" name="f_galaType" value="collar" ${c.galaType==='collar'?'checked':''} onchange="refreshPills(this)"> کالر</label>
         </div>
       </div>
 
-      <div class="urdu-field">
-        <label>دامن</label>
+      <div class="urdu-field"><label>دامن</label>
         <div class="radio-row">
           <label class="radio-pill ${c.daaman==='kurta'?'checked':''}"><input type="radio" name="f_daaman" value="kurta" ${c.daaman==='kurta'?'checked':''} onchange="refreshPills(this)"> کرتہ</label>
           <label class="radio-pill ${c.daaman==='gol'?'checked':''}"><input type="radio" name="f_daaman" value="gol" ${c.daaman==='gol'?'checked':''} onchange="refreshPills(this)"> گول</label>
@@ -717,16 +682,14 @@ function renderForm(edit){
         </div>
       </div>
 
-      <div class="urdu-field">
-        <label>کف</label>
+      <div class="urdu-field"><label>کف</label>
         <div class="radio-row">
           <label class="radio-pill ${c.kaf==='gol'?'checked':''}"><input type="radio" name="f_kaf" value="gol" ${c.kaf==='gol'?'checked':''} onchange="refreshPills(this)"> گول</label>
           <label class="radio-pill ${c.kaf==='chorus'?'checked':''}"><input type="radio" name="f_kaf" value="chorus" ${c.kaf==='chorus'?'checked':''} onchange="refreshPills(this)"> چورس</label>
         </div>
       </div>
 
-      <div class="urdu-field">
-        <label>سلائی</label>
+      <div class="urdu-field"><label>سلائی</label>
         <div class="radio-row">
           <label class="radio-pill ${c.silai==='single'?'checked':''}"><input type="radio" name="f_silai" value="single" ${c.silai==='single'?'checked':''} onchange="refreshPills(this); updatePrice();"> سنگل سلائی</label>
           <label class="radio-pill ${c.silai==='double'?'checked':''}"><input type="radio" name="f_silai" value="double" ${c.silai==='double'?'checked':''} onchange="refreshPills(this); updatePrice();"> ڈبل سلائی</label>
@@ -734,8 +697,7 @@ function renderForm(edit){
         </div>
       </div>
 
-      <div class="urdu-field">
-        <label>پاکٹ</label>
+      <div class="urdu-field"><label>پاکٹ</label>
         <div class="radio-row">
           <label class="radio-pill ${(c.pockets||[]).includes('side')?'checked':''}"><input type="checkbox" name="f_pocket_side" ${(c.pockets||[]).includes('side')?'checked':''} onchange="refreshPills(this)"> سائیڈ پاکٹ</label>
           <label class="radio-pill ${(c.pockets||[]).includes('front')?'checked':''}"><input type="checkbox" name="f_pocket_front" ${(c.pockets||[]).includes('front')?'checked':''} onchange="refreshPills(this)"> فرنٹ پاکٹ</label>
@@ -743,16 +705,14 @@ function renderForm(edit){
         </div>
       </div>
 
-      <div class="urdu-field">
-        <label>بکرم</label>
+      <div class="urdu-field"><label>بکرم</label>
         <div class="radio-row">
           <label class="radio-pill ${c.bakram==='normal'?'checked':''}"><input type="radio" name="f_bakram" value="normal" ${c.bakram==='normal'?'checked':''} onchange="refreshPills(this); updatePrice();"> نارمل</label>
           <label class="radio-pill ${c.bakram==='acha'?'checked':''}"><input type="radio" name="f_bakram" value="acha" ${c.bakram==='acha'?'checked':''} onchange="refreshPills(this); updatePrice();"> اچھا</label>
         </div>
       </div>
 
-      <div class="urdu-field">
-        <label>بٹن</label>
+      <div class="urdu-field"><label>بٹن</label>
         <div class="radio-row">
           <label class="radio-pill ${c.button==='karachi'?'checked':''}"><input type="radio" name="f_button" value="karachi" ${c.button==='karachi'?'checked':''} onchange="refreshPills(this); updatePrice();"> کراچی بٹن</label>
           <label class="radio-pill ${c.button==='rang'?'checked':''}"><input type="radio" name="f_button" value="rang" ${c.button==='rang'?'checked':''} onchange="refreshPills(this); updatePrice();"> رنگ بٹن</label>
@@ -761,8 +721,7 @@ function renderForm(edit){
         </div>
       </div>
 
-      <div class="urdu-field">
-        <label>تعداد (کتنے سوٹ)</label>
+      <div class="urdu-field"><label>تعداد (کتنے سوٹ)</label>
         <div class="qty-stepper">
           <button type="button" onclick="changeQty(-1)">−</button>
           <input type="number" id="f_qty" min="1" value="${c.qty || 1}" oninput="updatePrice()">
@@ -772,18 +731,9 @@ function renderForm(edit){
 
       <div class="naap-title">قیمت (PRICE)</div>
       <div id="priceBreakdown" class="price-box"></div>
-      <div class="field">
-        <label>حتمی قیمت (خود بھی تبدیل کر سکتے ہیں)</label>
-        <input type="text" id="f_price" value="${c.price !== undefined && c.price !== '' ? c.price : ''}" placeholder="Will auto-calculate">
-      </div>
-      <div class="field">
-        <label>DELIVERY DATE (ESTIMATED)</label>
-        <input type="date" id="f_deliveryDate" value="${c.deliveryDate||''}">
-      </div>
-      <div class="field">
-        <label>EXTRA NOTES (fabric, design, price, etc.)</label>
-        <textarea id="f_notes" rows="2" placeholder="Optional...">${escapeHtml(c.notes)}</textarea>
-      </div>
+      <div class="field"><label>حتمی قیمت</label><input type="text" id="f_price" value="${c.price !== undefined && c.price !== '' ? c.price : ''}"></div>
+      <div class="field"><label>DELIVERY DATE</label><input type="date" id="f_deliveryDate" value="${c.deliveryDate||''}"></div>
+      <div class="field"><label>EXTRA NOTES</label><textarea id="f_notes" rows="2">${escapeHtml(c.notes)}</textarea></div>
       <div class="panel-actions">
         <button class="btn" onclick="saveCustomer('${edit?edit.id:''}')">${edit?'Update':'Save'}</button>
         <button class="btn plain" onclick="cancelForm()">Cancel</button>
@@ -802,18 +752,14 @@ function refreshPills(el){
 }
 
 function cancelForm(){
-  formOpen = false;
-  editingId = null;
+  formOpen = false; editingId = null;
   document.getElementById('formArea').innerHTML = '';
 }
 
 function saveCustomer(id){
   const name = document.getElementById('f_name').value.trim();
   const phone = document.getElementById('f_phone').value.trim();
-  if(!name || !phone){
-    showToast('Name and number are required');
-    return;
-  }
+  if(!name || !phone){ showToast('Name and number required'); return; }
   const data = {
     name, phone,
     lambai: document.getElementById('f_lambai').value.trim(),
@@ -845,18 +791,15 @@ function saveCustomer(id){
     customers.unshift({ id: uid(), status:'pending', createdAt: Date.now(), ...data });
     showToast('Customer added');
   }
-  formOpen = false;
-  editingId = null;
+  formOpen = false; editingId = null;
   document.getElementById('formArea').innerHTML = '';
-  saveData();
-  render();
+  saveData(); render();
 }
 
 function editCustomer(id){
   const c = customers.find(x=>x.id===id);
   if(!c) return;
-  formOpen = true;
-  editingId = id;
+  formOpen = true; editingId = id;
   renderForm(c);
   document.getElementById('formArea').scrollIntoView({behavior:'smooth'});
 }
@@ -864,19 +807,15 @@ function editCustomer(id){
 function deleteCustomer(id){
   if(!confirm('Delete this record?')) return;
   customers = customers.filter(x=>x.id!==id);
-  saveData();
-  render();
+  saveData(); render();
 }
 
 function setStatus(id, status){
   const c = customers.find(x=>x.id===id);
   if(!c) return;
   c.status = status;
-  saveData();
-  render();
-  if(status==='ready'){
-    sendMessage(c, 'ready');
-  }
+  saveData(); render();
+  if(status==='ready') sendMessage(c, 'ready');
 }
 
 function statusLabel(s){
@@ -885,9 +824,7 @@ function statusLabel(s){
 
 function buildMessage(c){
   let msg = `السلام علیکم محترم ${c.name}، آپ کے کپڑے تیار ہیں۔ آپ جب چاہیں آ کر لے سکتے ہیں۔`;
-  if(c.price){
-    msg += ` کل چارجز: Rs ${c.price}۔`;
-  }
+  if(c.price) msg += ` کل چارجز: Rs ${c.price}۔`;
   msg += ` شکریہ!`;
   return msg;
 }
@@ -896,7 +833,7 @@ function sendMessage(c, via){
   const msg = encodeURIComponent(buildMessage(c));
   let phone = c.phone.replace(/[^0-9+]/g,'');
   if(via==='whatsapp'){
-    if(phone.startsWith('0')) phone = '92' + phone.slice(1); // Pakistan default; adjust if needed
+    if(phone.startsWith('0')) phone = '92' + phone.slice(1);
     window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
   } else {
     window.open(`sms:${c.phone}?body=${msg}`, '_blank');
@@ -931,7 +868,7 @@ function computePriceFromData(c){
   return lines;
 }
 
-function buildReceiptHTML(c, widthMM, lengthMM){
+function buildReceiptHTML(c, widthMM){
   const galaLabel = c.galaType==='bein' ? 'بین گلا' : c.galaType==='collar' ? 'کالر گلا' : '';
   const daamanLabel = c.daaman==='kurta' ? 'کرتہ دامن' : c.daaman==='gol' ? 'گول دامن' : c.daaman==='chorus' ? 'چورس دامن' : '';
   const kafLabel = c.kaf==='gol' ? 'گول کف' : c.kaf==='chorus' ? 'چورس کف' : '';
@@ -941,32 +878,18 @@ function buildReceiptHTML(c, widthMM, lengthMM){
   const pocketNames = {side:'سائیڈ پاکٹ', front:'فرنٹ پاکٹ', shalwar:'شلوار پاکٹ'};
   const pocketsLabel = (c.pockets||[]).map(p=>pocketNames[p]).join('، ');
 
-  // Numeric measurements: label + number
   const measurements = [
     ['لمبائی', c.lambai], ['تیرا', c.tera], ['بازو', c.baazu],
     ['چھاتی', c.chati], ['چوڑائی', c.chorai], ['شلوار', c.shalwar], ['پانچہ', c.pancha]
   ].filter(([k,v]) => v);
   if(Number(c.qty) > 1) measurements.push(['تعداد', c.qty + ' سوٹ']);
 
-  // Style/selection options: label + check mark
   const styleChecks = [galaLabel, daamanLabel, kafLabel, silaiLabel, bakramLabel, buttonLabel, pocketsLabel].filter(Boolean);
-
-  // Match real thermal-printer dot widths: 58mm -> 384px, 80mm -> 576px (8 dots/mm printable area)
-  let sizeClass = '';
-  let sizeStyle = '';
-  if(widthMM === 80){
-    sizeClass = ' size-80';
-  } else if(widthMM && widthMM !== 58){
-    sizeStyle += `width:${Math.round(widthMM * 7.2)}px;`;
-  }
-  if(lengthMM){
-    sizeStyle += `min-height:${Math.round(lengthMM * 7.2)}px;`;
-  }
+  let sizeClass = (widthMM === 80) ? ' size-80' : '';
 
   return `
-    <div class="receipt${sizeClass}" style="${sizeStyle}">
+    <div class="receipt${sizeClass}">
       <div class="receipt-header">
-        <img src="logo-transparent.png" alt="Marhaba Tailor" style="height:44px;width:auto;margin-bottom:6px;">
         <h2>Marhaba Tailor</h2>
         <div class="owner">Sajjad Ali<span class="divider">•</span>0301-3335066</div>
       </div>
@@ -978,10 +901,10 @@ function buildReceiptHTML(c, widthMM, lengthMM){
         ${measurements.map(([k,v])=>`<div class="receipt-row"><span class="v">${escapeHtml(v)}</span><span class="k">${k}</span></div>`).join('')}
         ${styleChecks.map(k=>`<div class="receipt-row"><span class="v check">✓</span><span class="k">${k}</span></div>`).join('')}
       </div>
-      ${c.notes ? `<div class="notes" style="margin-bottom:12px;">${escapeHtml(c.notes)}</div>` : ''}
+      ${c.notes ? `<div class="notes" style="margin-bottom:8px;font-weight:600;">${escapeHtml(c.notes)}</div>` : ''}
       ${c.price ? `
-      <div class="price-box" style="background:transparent;padding:0;">
-        ${computePriceFromData(c).map(([label,amt])=>`<div class="price-line"><span>${label}</span><span>${typeof amt==='number' ? 'Rs '+amt : amt}</span></div>`).join('')}
+      <div style="margin-top:4px;">
+        ${computePriceFromData(c).map(([label,amt])=>`<div class="price-line" style="color:#000;"><span>${label}</span><span>${typeof amt==='number' ? 'Rs '+amt : amt}</span></div>`).join('')}
       </div>
       <div class="receipt-price">
         <span class="label">کل قیمت</span>
@@ -994,92 +917,50 @@ function buildReceiptHTML(c, widthMM, lengthMM){
   `;
 }
 
-let currentCardWidthMM = 80;
-let currentCardLengthMM = 0;
-
-async function generateNaapCard(id, widthMM, lengthMM){
-  widthMM = widthMM || currentCardWidthMM;
-  lengthMM = lengthMM !== undefined ? lengthMM : currentCardLengthMM;
-  currentCardWidthMM = widthMM;
-  currentCardLengthMM = lengthMM;
+function directPrintReceipt(id, widthMM){
+  widthMM = widthMM || 80;
   const c = customers.find(x=>x.id===id);
   if(!c) return;
-  if(typeof html2canvas === 'undefined'){
-    showToast('Internet is needed to generate the image');
-    return;
-  }
+  const root = document.getElementById('cardTemplateRoot');
+  root.innerHTML = buildReceiptHTML(c, widthMM);
+  setTimeout(() => {
+    window.print();
+    root.innerHTML = '';
+  }, 100);
+}
+
+async function generateNaapCard(id, widthMM){
+  widthMM = widthMM || 80;
+  const c = customers.find(x=>x.id===id);
+  if(!c) return;
+  if(typeof html2canvas === 'undefined'){ showToast('Internet needed'); return; }
   showToast('Generating card...');
   const root = document.getElementById('cardTemplateRoot');
-  root.innerHTML = buildReceiptHTML(c, widthMM, lengthMM);
-  // wait for fonts to be ready so Urdu text renders correctly
+  root.innerHTML = buildReceiptHTML(c, widthMM);
   try{ await document.fonts.ready; }catch(e){}
   await new Promise(r => setTimeout(r, 150));
   try{
     const canvas = await html2canvas(root.querySelector('.receipt'), {backgroundColor:'#FFFFFF', scale:2});
     const dataUrl = canvas.toDataURL('image/png');
-    showImageModal(dataUrl, c.name, id, widthMM, lengthMM);
-  }catch(e){
-    showToast("Couldn't generate the card, please try again");
-  }
+    showImageModal(dataUrl, c.name, id, widthMM);
+  }catch(e){ showToast("Could not generate card"); }
   root.innerHTML = '';
 }
 
-let tempWidthMM = 80;
-let tempLengthMM = 0;
-
-function stepCardSize(which, delta){
-  if(which==='width'){
-    tempWidthMM = Math.max(20, Math.min(300, tempWidthMM + delta));
-    document.getElementById('widthVal').textContent = tempWidthMM;
-  } else {
-    tempLengthMM = Math.max(0, Math.min(600, tempLengthMM + delta));
-    document.getElementById('lengthVal').textContent = tempLengthMM || 'Auto';
-  }
-}
-
-function applyCustomCardSize(customerId){
-  generateNaapCard(customerId, tempWidthMM, tempLengthMM);
-}
-
-function showImageModal(dataUrl, name, customerId, widthMM, lengthMM){
-  widthMM = widthMM || 58;
-  lengthMM = lengthMM || 0;
-  tempWidthMM = widthMM;
-  tempLengthMM = lengthMM;
+function showImageModal(dataUrl, name, customerId, widthMM){
+  widthMM = widthMM || 80;
   const root = document.getElementById('modalRoot');
-  const sizeControlsHTML = customerId ? `
-    <div class="size-toggle">
-      <button class="${widthMM===58?'active':''}" onclick="generateNaapCard('${customerId}',58,0)">58mm</button>
-      <button class="${widthMM===80?'active':''}" onclick="generateNaapCard('${customerId}',80,0)">80mm</button>
-    </div>
-    <div class="size-custom">
-      <div class="stepper-group">
-        <label>Width (mm)</label>
-        <div class="stepper">
-          <button type="button" onclick="stepCardSize('width',-2)">−</button>
-          <span id="widthVal">${widthMM}</span>
-          <button type="button" onclick="stepCardSize('width',2)">+</button>
-        </div>
-      </div>
-      <div class="stepper-group">
-        <label>Length (mm)</label>
-        <div class="stepper">
-          <button type="button" onclick="stepCardSize('length',-5)">−</button>
-          <span id="lengthVal">${lengthMM || 'Auto'}</span>
-          <button type="button" onclick="stepCardSize('length',5)">+</button>
-        </div>
-      </div>
-      <button class="btn secondary small" onclick="applyCustomCardSize('${customerId}')">Apply</button>
-    </div>
-  ` : '';
   root.innerHTML = `
     <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
       <div class="modal-box">
-        ${sizeControlsHTML}
+        <div class="size-toggle">
+          <button class="${widthMM===58?'active':''}" onclick="generateNaapCard('${customerId}',58)">58mm</button>
+          <button class="${widthMM===80?'active':''}" onclick="generateNaapCard('${customerId}',80)">80mm</button>
+        </div>
         <img src="${dataUrl}" alt="Measurement card">
         <div class="modal-actions">
+          <button class="btn small" style="background:#20180a;color:#fff;" onclick="directPrintReceipt('${customerId}', ${widthMM})">🖨️ Direct Print</button>
           <button class="btn small" onclick="downloadImage('${dataUrl}', '${name.replace(/'/g,"")}')">⬇ Download</button>
-          <button class="btn secondary small" onclick="shareImage('${dataUrl}', '${name.replace(/'/g,"")}')">Share</button>
           <button class="btn danger" onclick="closeModal()">Close</button>
         </div>
       </div>
@@ -1087,31 +968,13 @@ function showImageModal(dataUrl, name, customerId, widthMM, lengthMM){
   `;
 }
 
-function closeModal(){
-  document.getElementById('modalRoot').innerHTML = '';
-}
+function closeModal(){ document.getElementById('modalRoot').innerHTML = ''; }
 
 function downloadImage(dataUrl, name){
   const a = document.createElement('a');
   a.href = dataUrl;
   a.download = `naap-${name || 'customer'}.png`;
   a.click();
-}
-
-async function shareImage(dataUrl, name){
-  try{
-    const res = await fetch(dataUrl);
-    const blob = await res.blob();
-    const file = new File([blob], `naap-${name || 'customer'}.png`, {type:'image/png'});
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({files:[file], title:'Measurement Card'});
-    } else {
-      downloadImage(dataUrl, name);
-      showToast("Sharing isn't supported, image downloaded instead");
-    }
-  }catch(e){
-    downloadImage(dataUrl, name);
-  }
 }
 
 let expandedId = null;
@@ -1125,14 +988,11 @@ function render(){
   const list = document.getElementById('list');
   const countLabel = document.getElementById('countLabel');
 
-  const filtered = customers.filter(c =>
-    !q || c.name.toLowerCase().includes(q) || c.phone.includes(q)
-  );
-
+  const filtered = customers.filter(c => !q || c.name.toLowerCase().includes(q) || c.phone.includes(q));
   countLabel.textContent = `${customers.length} customer${customers.length!==1?'s':''} — ${customers.filter(c=>c.status==='pending').length} pending`;
 
   if(filtered.length===0){
-    list.innerHTML = `<div class="empty"><div class="icon">📏</div>${customers.length===0 ? 'No customers added yet.<br>Start with the button above.' : 'No results found.'}</div>`;
+    list.innerHTML = `<div class="empty"><div class="icon">📏</div>${customers.length===0 ? 'No customers added yet.' : 'No results found.'}</div>`;
     return;
   }
 
@@ -1185,13 +1045,13 @@ function render(){
           </select>
 
           <div class="card-actions" style="margin-top:12px;">
-            <button class="btn small" onclick="sendMessage(customers.find(x=>x.id==='${c.id}'), 'whatsapp')">Send via WhatsApp</button>
-            <button class="btn secondary small" onclick="sendMessage(customers.find(x=>x.id==='${c.id}'), 'sms')">Send via SMS</button>
+            <button class="btn small" onclick="sendMessage(customers.find(x=>x.id==='${c.id}'), 'whatsapp')">WhatsApp</button>
             <button class="btn secondary small" onclick="editCustomer('${c.id}')">Edit</button>
             <button class="btn danger" onclick="deleteCustomer('${c.id}')">Delete</button>
           </div>
           <div class="card-actions" style="margin-top:8px;">
-            <button class="btn small" style="background:var(--green);color:#0f1a10;" onclick="generateNaapCard('${c.id}')">📸 Generate Measurement Card</button>
+            <button class="btn small" style="background:#20180a;color:#fff;" onclick="directPrintReceipt('${c.id}', 80)">🖨️ Direct Print</button>
+            <button class="btn small" style="background:var(--green);color:#0f1a10;" onclick="generateNaapCard('${c.id}', 80)">📸 Preview & Options</button>
           </div>
         </div>` : ''}
       </div>
